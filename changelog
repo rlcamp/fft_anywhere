@@ -1,0 +1,51 @@
+- Removed the #define CMPLXF shim, which had been added to support the combination of gcc and Apple libc, in which Apple libc was at one point known to refuse to define that macro itself. If this shim is still necessary, it can be applied at the Makefile level in projects which need it
+
+- Removed forcing of compiler optimization flags when using gcc
+
+20231018T1901Z:
+
+- Added enforcement that real-to-complex and complex-to-real transform lengths are multiples of 4, as has been implicitly required since 20210221T1805Z and which is already enforced by all known code using this fft implementation (and which is still much less restrictive than other implementations)
+
+- Added a check.c that exercises a fair amount of the code for correctness (but not performance, which requires a test rig with other fft implementations as a baseline)
+
+- Renamed, and started a fresh git repository containing only the module, the aforementioned check.c, and the changelog, thereby not depending on other fft implementations at build time due to the old benchmarking code
+
+20220513T0210Z:
+
+- Reinstated seven-smooth transform lengths, which are necessary for resampling between the 44100 sample/s and 48000 sample/s families of sample rates
+
+20220331T0409Z:
+
+- Added a proper complex-to-real transform, which destroys its input unlike the other transform types, but still requires no additional scratch space
+
+20210225T2302Z:
+
+- Eliminated fft6, will be handled by special casing T=6 in the planner to land on dft3 as the final leaf, for significant binary size reduction. This was not a fast transform anyway
+
+20210224T2355Z:
+
+- Further code simplification
+
+- Eliminated runtime scratch space used for inverse c2c fft, this incurs a very slight slowdown but worth it, as this was the last remaining use of runtime scratch space. Application can (as before) avoid the ifft overhead by computing a forward fft and inlining the resulting identity
+
+20210224T2228Z:
+
+- Eliminated runtime scratch space requirement, exploiting out-of-place assumption, for significant speedup and overall sram usage reduction
+
+20210221T1805Z:
+
+- Significantly reduced r2c fft stack space requirement, at the expense of forcing it to be out-of-place
+
+- Significantly reduced r2c fft plan heap space requirement
+
+- Both of the above make r2c fft's faster, not slower
+
+20210220T0916Z:
+
+- Removed 7-point dft
+
+- Removed recurrence-relation generation of twiddle factors, which was clever, but reduced agreement with pffft, and did not save on compiled code size
+
+20210220T0211Z:
+
+- Initial commit as own repository
