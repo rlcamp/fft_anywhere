@@ -113,7 +113,7 @@ static void fft4(float complex * restrict const out, const size_t stride, const 
     const float complex scratch0 = in0 + in2;
     const float complex scratch1 = in0 - in2;
     const float complex scratch2 = in1 + in3;
-    const float complex scratch3 = CMPLXF(__imag__ in1 - __imag__ in3, - __real__ in1 + __real__ in3);
+    const float complex scratch3 = CMPLXF(cimagf(in1) - cimagf(in3), - crealf(in1) + crealf(in3));
 
     /* perform two more dfts of size 2 */
     out[0 * stride] = scratch0 + scratch2;
@@ -150,11 +150,11 @@ static void fft_recursive_8(float complex * restrict const out, const float comp
     const float complex a0 = in0 + in4;
     const float complex a1 = in0 - in4;
     const float complex a2 = in2 + in6;
-    const float complex a3 = CMPLXF( __imag__ in2 - __imag__ in6, __real__ in6 - __real__ in2 );
+    const float complex a3 = CMPLXF(cimagf(in2) - cimagf(in6), crealf(in6) - crealf(in2));
     const float complex a4 = in1 + in5;
     const float complex a5 = in1 - in5;
     const float complex a6 = in3 + in7;
-    const float complex a7 = CMPLXF( __imag__ in3 - __imag__ in7, __real__ in7 - __real__ in3 );
+    const float complex a7 = CMPLXF(cimagf(in3) - cimagf(in7), crealf(in7) - crealf(in3));
 
     /* perform four more dfts of size 2 */
     const float complex c0 = a0 + a2;
@@ -167,9 +167,9 @@ static void fft_recursive_8(float complex * restrict const out, const float comp
     const float complex b7 = a5 - a7;
 
     /* apply final twiddle factors */
-    const float complex c5 = CMPLXF(__imag__ b5 + __real__ b5,   __imag__ b5 - __real__ b5 ) * (float)M_SQRT1_2;
-    const float complex c6 = CMPLXF(__imag__ b6, -__real__ b6 );
-    const float complex c7 = CMPLXF(__imag__ b7 - __real__ b7, -(__real__ b7 + __imag__ b7)) * (float)M_SQRT1_2;
+    const float complex c5 = CMPLXF(cimagf(b5) + crealf(b5),   cimagf(b5) - crealf(b5) ) * (float)M_SQRT1_2;
+    const float complex c6 = CMPLXF(cimagf(b6), -crealf(b6));
+    const float complex c7 = CMPLXF(cimagf(b7) - crealf(b7), -(crealf(b7) + cimagf(b7))) * (float)M_SQRT1_2;
 
     /* perform four dfts of length two */
     out[0] = c0 + c4;
