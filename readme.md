@@ -4,9 +4,11 @@
 
 ## How it works
 
- The core of the FFT is a set of functions for the DFTs/FFTs of size 3, 4, 5, 7, and 8. A second set of functions implements the Cooley-Tukey decomposition for T / S x S, for S = 2, 3, 4, 5, and 7. Each of these functions decomposes a length-T FFT into S FFTs of length T/S, followed by T/S FFTs of length S, where the latter are implemented using the relevant primitive DFT/FFT function. In this way, all FFTs of length T=2^a 3^b 5^c 7^d, for nonnegative integers a-d, may be computed.
+ The core of the implementation is a set of primitives for the DFTs of sizes 3, 5, and 7, and unrolled FFTs of sizes 4 and 8. A second set of functions implements the Cooley-Tukey decomposition for T / S x S, for S = 2, 3, 4, 5, and 7. These are used recursively to decompose a length-T Fourier transform into S transforms of length T/S, followed by T/S transforms of length S, where the latter are implemented using the relevant primitive DFT or FFT function.
 
- The twiddle factors are precomputed for a given FFT length and may be reused indefinitely and across threads. The transform is out-of-place, with the destination buffer used as scratch space. The inverse complex-to-real transform distorts its input, but the other three transforms do not.
+ In this way, all FFTs of length T=2^a 3^b 5^c 7^d, for nonnegative integers a-d, may be computed. The real-to-complex and complex-to-real transform variants require that T be a multiple of 4, otherwise there are no further restrictions.
+
+ The recursive function call structure, and the twiddle factors for each stage of the recursion, are precomputed for a given FFT length and may be reused indefinitely and across threads, with no per-use requirement for a memory allocator. The transform is out-of-place, with the destination buffer used as scratch space. The inverse complex-to-real transform distorts its input, but the other three transforms do not.
 
 ## Caveats about compilation
 
