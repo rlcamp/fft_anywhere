@@ -20,16 +20,16 @@
 #include <complex.h>
 #include <stddef.h>
 
-/* Plan a forward complex-to-complex transform */
+/* Plan a forward complex-to-complex transform. T may be any seven-smooth number */
 struct planned_forward_fft * plan_forward_fft_of_length(const size_t T);
 
-/* Plan an inverse FFT of the given length */
+/* Plan an inverse FFT of the given length. T may be any seven-smooth number */
 struct planned_inverse_fft * plan_inverse_fft_of_length(const size_t T);
 
-/* Plan a forward real-to-complex transform */
+/* Plan a forward real-to-complex transform. T must be a seven-smooth multiple of 4 */
 struct planned_real_fft * plan_real_fft_of_length(const size_t T);
 
-/* Plan an inverse complex-to-real transform */
+/* Plan an inverse complex-to-real transform. T must be a seven-smooth multiple of 4 */
 struct planned_real_inverse_fft * plan_real_inverse_fft_of_length(const size_t T);
 
 /* Evaluate a single, foward, complex-to-complex transform. Input and output must not alias */
