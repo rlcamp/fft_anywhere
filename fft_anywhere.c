@@ -45,6 +45,11 @@
 #include <math.h>
 #include <assert.h>
 
+/* workaround for newlib and certain combinations of apple libc and gcc */
+#ifndef CMPLXF
+#define CMPLXF __builtin_complex
+#endif
+
 struct planned_forward_fft {
     /* next function in recursive scheme */
     void (* function)(float complex * restrict, const float complex * restrict, size_t, const struct planned_forward_fft *);

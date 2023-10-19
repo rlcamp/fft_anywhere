@@ -1,5 +1,3 @@
-- Removed the #define CMPLXF shim, which had been added to support the combination of gcc and Apple libc, in which Apple libc was at one point known to refuse to define that macro itself. If this shim is still necessary, it can be applied at the Makefile level in projects which need it
-
 - Removed forcing of compiler optimization flags when using gcc
 
 20231018T1901Z:
