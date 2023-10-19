@@ -70,12 +70,18 @@ int main(void) {
     /* do the complex-to-real inverse fft */
     fft_evaluate_real_inverse(c, b, plan_inverse);
 
-    /* calcuate mean and worst case relative error, which is a sort of okay metric */
+    /* calculate mean and worst case relative error, which is a sort of okay metric */
     float max_relative_error = 0;
     double sum_of_squared_relative_error = 0;
+
     for (size_t it = 0; it < T; it++) {
+        /* ifft(fft(x)) must be normalized according to tranform length */
         const float value = c[it] / T;
+
+        /* the expected result of the manipulated transform is a reordering of input */
         const float expected = a[(T - it) % T];
+
+        /* somewhat iffy and obviously only works when expected is nonzero */
         const float relative_error = fabsf((value - expected) / expected);
         max_relative_error = fmaxf(max_relative_error, relative_error);
         sum_of_squared_relative_error += relative_error * relative_error;
