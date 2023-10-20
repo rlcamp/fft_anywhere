@@ -311,16 +311,10 @@ struct planned_forward_fft * plan_forward_fft_of_length(const size_t T) {
     else if (!(T % 7)) S = 7;
     else if (!(T % 5)) S = 5;
     else if (!(T % 3)) S = 3;
-    else {
-        /* should be a power of two if we get here, only decision is whether it's a power of four or not */
-        size_t P = 0, N = 1;
-        for (; N < T; N *= 2, P++);
-
-        /* if T is not a power of 2, nothing we can do, calling code should check for this */
-        if (N != T) return NULL;
-
-        S = (P % 2) ? 4 : 2;
-    }
+    /* if T is not a power of 2, nothing we can do, calling code should check for this */
+    else if (T & (T - 1)) return NULL;
+    /* once reduced to powers of 2, try to get to repeatedly dividing by 4 and ending up at 8 */
+    else S = T & (size_t)0xAAAAAAAAAAAAAAAA ? 4 : 2; /* S = 2 if T is a power of 4, else 4 */
 
     /* recursively plan the next fft size, if we can, before allocating the current one */
     struct planned_forward_fft * const plan_next = plan_forward_fft_of_length(T / S);
