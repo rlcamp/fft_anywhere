@@ -13,11 +13,11 @@
  THIS SOFTWARE.
 
  This is a good-enough FFT implementation which benchmarks within a respectable distance of the
- fastest known fft implementation on platforms of interest, and usually beats the most widely used
- one, when compiled with a modern C compiler. This implementation is known to not be terribly
- cache-efficient, but should work where faster fft implementations do not, hence the name. If you
- are on a SIMD processor and need a permissive-licensed fft implementation, jpommier/pffft is
- considerably faster, and you should prefer it to this or fftw.
+ fastest known implementations on platforms of interest, and usually beats them on non-SIMD
+ platforms, when compiled with a modern C compiler. This implementation should work where other FFT
+ implementations do not, hence the name. If you are on a SIMD processor and need a permissive-
+ licensed FFT implementation, jpommier/pffft is considerably faster, and you should prefer it to
+ this or fftw.
 
  The core of the FFT is a set of functions for the DFTs/FFTs of size 3, 4, 5, 7, and 8. A second set
  of functions implements the Cooley-Tukey decomposition for T / S x S, for S = 2, 3, 4, 5, and 7.
