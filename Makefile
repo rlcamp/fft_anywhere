@@ -13,6 +13,7 @@ endif
 
 CPPFLAGS += -Wall -Wextra -Wshadow -Wmissing-prototypes
 LDFLAGS += ${CFLAGS}
+LDLIBS ?= -lm
 
 # list of targets to build, generated from .c files containing a main() function:
 
