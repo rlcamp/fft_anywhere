@@ -45,7 +45,7 @@
 #include <math.h>
 #include <assert.h>
 
-/* workaround for newlib and certain combinations of apple libc and gcc */
+/* workaround for newlib and certain uncooperative combinations of compiler and libc */
 #ifndef CMPLXF
 #define CMPLXF __builtin_complex
 #endif
