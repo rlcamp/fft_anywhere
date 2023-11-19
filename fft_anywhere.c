@@ -327,7 +327,7 @@ struct planned_forward_fft * plan_forward_fft_of_length(const size_t T) {
 
     for (size_t it = 0; it < T / S; it++)
         for (size_t is = 1; is < S; is++)
-            plan->twiddles[(is - 1) + (S - 1) * it] = cexpf(-I * 2.0f * it * is * (float)M_PI / (float)T);
+            plan->twiddles[(is - 1) + (S - 1) * it] = cexpf(-I * (float)(2.0f * it * is * (float)M_PI / T));
 
     return plan;
 }
@@ -387,7 +387,7 @@ struct planned_real_fft * plan_real_fft_of_length(const size_t T) {
     plan->plan = plan_actual;
 
     for (size_t iw = 0; iw < T / 4; iw++)
-        plan->twiddles_r2c[iw] = -I * cexpf(-I * (float)M_PI * 2.0f * iw / T);
+        plan->twiddles_r2c[iw] = -I * cexpf(-I * (float)(2.0f * (float)M_PI * iw / T));
 
     return plan;
 }
