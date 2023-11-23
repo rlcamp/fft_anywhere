@@ -39,6 +39,9 @@
  to a wider audience.
  */
 
+/* needed for M_PI */
+#define _XOPEN_SOURCE
+
 #include "fft_anywhere.h"
 
 #include <stdlib.h>
