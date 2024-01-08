@@ -295,17 +295,12 @@ struct planned_forward_fft * plan_forward_fft_of_length(const size_t T) {
 
     if (T < 3) return NULL;
 
-    static struct planned_forward_fft primitives[] = {
-        { .function = fft_recursive_3, .T = 3 },
-        { .function = fft_recursive_4, .T = 4 },
-        { .function = fft_recursive_5, .T = 5 },
-        { .function = fft_recursive_7, .T = 7 },
-        { .function = fft_recursive_8, .T = 8 },
-    };
-
-    /* if fft is one of the above primitive sizes... */
-    for (struct planned_forward_fft * primitive = primitives; primitive < primitives + sizeof(primitives) / sizeof(primitives[0]); primitive++)
-        if (primitive->T == T) return primitive;
+    /* special case primitive sizes. TODO: clean this when c23 allows static compound literals */
+    if (3 == T) { static struct planned_forward_fft t = { .function = fft_recursive_3, .T = 3 }; return &t; }
+    else if (4 == T) { static struct planned_forward_fft t = { .function = fft_recursive_4, .T = 4 }; return &t; }
+    else if (5 == T) { static struct planned_forward_fft t = { .function = fft_recursive_5, .T = 5 }; return &t; }
+    else if (7 == T) { static struct planned_forward_fft t = { .function = fft_recursive_7, .T = 7 }; return &t; }
+    else if (8 == T) { static struct planned_forward_fft t = { .function = fft_recursive_8, .T = 8 }; return &t; }
 
     /* FFT size is not one of the primitive sizes, and must be divisible by a prime factor not larger than 7 */
     size_t S;
