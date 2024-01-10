@@ -331,7 +331,7 @@ static void (* plan_recursive(struct plan ** plan_p, const size_t T))(float comp
         for (size_t is = 1; is < S; is++)
             (*plan_p)->twiddles[(is - 1) + (S - 1) * it] = cexpf(-I * (2.0f * it * is * (float)M_PI / T));
 
-    return (S == 7) ? fft_recursive_by_7 : (S == 5) ? fft_recursive_by_5 : (S == 4) ? fft_recursive_by_4 : (S == 3) ? fft_recursive_by_3 : fft_recursive_by_2;;
+    return S == 7 ? fft_recursive_by_7 : S == 5 ? fft_recursive_by_5 : S == 4 ? fft_recursive_by_4 : S == 3 ? fft_recursive_by_3 : fft_recursive_by_2;
 }
 
 struct planned_forward_fft * plan_forward_fft_of_length(const size_t T) {
@@ -400,9 +400,7 @@ struct planned_real_fft * plan_real_fft_of_length(const size_t T) {
     if (!nextfunc) return NULL;
 
     struct planned_real_fft * plan = malloc(sizeof(*plan) + sizeof(float complex) * T / 4);
-    plan->firstfunc = nextfunc;
-    plan->first = next;
-    plan->T = T / 2;
+    *plan = (struct planned_real_fft) { .firstfunc = nextfunc, .first = next, .T = T / 2 };
 
     for (size_t iw = 0; iw < T / 4; iw++)
         plan->twiddles_r2c[iw] = -I * cexpf(-I * (2.0f * (float)M_PI * iw / T));
