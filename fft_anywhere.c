@@ -46,7 +46,6 @@
 
 #include <stdlib.h>
 #include <math.h>
-#include <assert.h>
 
 /* workaround for newlib and certain uncooperative combinations of compiler and libc */
 #ifndef CMPLXF
@@ -60,14 +59,11 @@ struct planned_forward_fft {
     /* next c2c plan in the recursive scheme */
     struct planned_forward_fft * next;
 
-    size_t T, pad;
+    size_t T;
 
     /* twiddle factors, not used in the outermost c2c fft */
     float complex twiddles[];
 };
-
-/* assert that the fft plan structs meet the alignment re alignment of the twiddle factors which follow */
-static_assert((offsetof(struct planned_forward_fft, twiddles) % sizeof(float complex)) == 0, "misaligned struct");
 
 static void dft3(float complex * restrict const out, const size_t stride, const float complex in0, const float complex in1, const float complex in2) {
     /* primitive for three-point discrete Fourier transform. this and the other primitives are inlined in several places */
