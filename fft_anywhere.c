@@ -331,7 +331,7 @@ struct planned_forward_fft * plan_forward_fft_of_length(const size_t T) {
 }
 
 void destroy_planned_forward_fft(struct planned_forward_fft * plan) {
-    if (plan->next) destroy_planned_forward_fft(plan->next);
+    if (plan && plan->next) destroy_planned_forward_fft(plan->next);
     free(plan);
 }
 
