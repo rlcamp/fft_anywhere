@@ -72,7 +72,7 @@ int main(void) {
 
     /* calculate mean and worst case relative error, which is a sort of okay metric */
     float max_relative_error = 0;
-    double sum_of_squared_relative_error = 0;
+    float sum_of_squared_relative_error = 0;
 
     for (size_t it = 0; it < T; it++) {
         /* ifft(fft(x)) must be normalized according to tranform length */
