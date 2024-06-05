@@ -277,6 +277,10 @@ static void fft_recursive_by_7(float complex * restrict const out, const float c
              out[it + 6 * T / 7] * plan->twiddles[6 * it + 5]);
 }
 
+static float complex cosisinf(const float x) {
+    return CMPLXF(cosf(x), sinf(x));
+}
+
 static void (* plan_recursive(struct planned_forward_fft ** plan_p, const size_t T))(float complex * restrict, const float complex * restrict, size_t, const struct planned_forward_fft *) {
     /* recursively plan a forward c2c fft for the given length, allocating and calculating all the
      necessary twiddle factors and branch conditions which will be encountered during execution of
@@ -314,7 +318,7 @@ static void (* plan_recursive(struct planned_forward_fft ** plan_p, const size_t
 
     for (size_t it = 0; it < T / S; it++)
         for (size_t is = 1; is < S; is++)
-            (*plan_p)->twiddles[(is - 1) + (S - 1) * it] = cexpf(-I * (2.0f * it * is * (float)M_PI / T));
+            (*plan_p)->twiddles[(is - 1) + (S - 1) * it] = cosisinf(-2.0f * it * is * (float)M_PI / T);
 
     return S == 7 ? fft_recursive_by_7 : S == 5 ? fft_recursive_by_5 : S == 4 ? fft_recursive_by_4 : S == 3 ? fft_recursive_by_3 : fft_recursive_by_2;
 }
@@ -382,7 +386,7 @@ struct planned_real_fft * plan_real_fft_of_length(const size_t T) {
     *plan = (struct planned_forward_fft) { .nextfunc = nextfunc, .next = next, .T = T / 2 };
 
     for (size_t iw = 0; iw < T / 4; iw++)
-        plan->twiddles[iw] = -I * cexpf(-I * (2.0f * (float)M_PI * iw / T));
+        plan->twiddles[iw] = -I * cosisinf(-2.0f * (float)M_PI * iw / T);
 
     return (void *)plan;
 }
