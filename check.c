@@ -50,10 +50,10 @@ int main(void) {
     float * restrict const c = malloc(sizeof(float) * T);
 
     /* attempt to plan transforms of the given length */
-    struct planned_real_fft * plan_forward = plan_real_fft_of_length(T);
+    struct planned_real_fft * plan_forward = plan_real_fft_of_length(T, malloc(fft_plan_storage_required(T)));
     if (!plan_forward) return 1;
 
-    struct planned_real_inverse_fft * plan_inverse = plan_real_inverse_fft_of_length(T);
+    struct planned_real_inverse_fft * plan_inverse = plan_real_inverse_fft_of_length(T, malloc(fft_plan_storage_required(T)));
     if (!plan_inverse) return 1;
 
     /* construct a monotonically increasing signal with an offset */
@@ -88,8 +88,8 @@ int main(void) {
     }
 
     /* cleanup */
-    destroy_planned_real_inverse_fft(plan_inverse);
-    destroy_planned_real_fft(plan_forward);
+    free(plan_inverse);
+    free(plan_forward);
     free(c);
     free(b);
     free(a);

@@ -20,17 +20,20 @@
 #include <complex.h>
 #include <stddef.h>
 
+/* caller uses this to determine the size of the allocation to pass to the void pointer in the planning functions */
+size_t fft_plan_storage_required(const size_t T);
+
 /* Plan a forward complex-to-complex transform. T may be any seven-smooth number */
-struct planned_forward_fft * plan_forward_fft_of_length(const size_t T);
+struct planned_forward_fft * plan_forward_fft_of_length(const size_t T, void *);
 
 /* Plan an inverse FFT of the given length. T may be any seven-smooth number */
-struct planned_inverse_fft * plan_inverse_fft_of_length(const size_t T);
+struct planned_inverse_fft * plan_inverse_fft_of_length(const size_t T, void *);
 
 /* Plan a forward real-to-complex transform. T must be a seven-smooth multiple of 4 */
-struct planned_real_fft * plan_real_fft_of_length(const size_t T);
+struct planned_real_fft * plan_real_fft_of_length(const size_t T, void *);
 
 /* Plan an inverse complex-to-real transform. T must be a seven-smooth multiple of 4 */
-struct planned_real_inverse_fft * plan_real_inverse_fft_of_length(const size_t T);
+struct planned_real_inverse_fft * plan_real_inverse_fft_of_length(const size_t T, void *);
 
 /* Evaluate a single, foward, complex-to-complex transform. Input and output must not alias */
 void fft_evaluate_forward(float complex * restrict const out, const float complex * restrict const in, const struct planned_forward_fft * const plan);
@@ -47,9 +50,3 @@ void fft_evaluate_real(float complex * restrict const out, const float * restric
  above. Input and output must not alias. Unlike the other three transform types, this also destroys
  its input */
 void fft_evaluate_real_inverse(float * restrict const out, float complex * restrict const in, const struct planned_real_inverse_fft * const plan);
-
-/* Destroy the above plans */
-void destroy_planned_forward_fft(struct planned_forward_fft * plan);
-void destroy_planned_inverse_fft(struct planned_inverse_fft * plan);
-void destroy_planned_real_fft(struct planned_real_fft * plan);
-void destroy_planned_real_inverse_fft(struct planned_real_inverse_fft * plan);

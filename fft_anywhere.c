@@ -281,7 +281,13 @@ static float complex cosisinf(const float x) {
     return CMPLXF(cosf(x), sinf(x));
 }
 
-static void (* plan_recursive(struct planned_forward_fft ** plan_p, const size_t T))(float complex * restrict, const float complex * restrict, size_t, const struct planned_forward_fft *) {
+size_t fft_plan_storage_required(const size_t T) {
+    unsigned ceil_log2_T = 1;
+    for (; (1U << ceil_log2_T) < T; ceil_log2_T++);
+    return sizeof(float complex) * T + sizeof(struct planned_forward_fft) * ceil_log2_T;
+}
+
+static void (* plan_recursive(struct planned_forward_fft ** plan_p, const size_t T, void * memory))(float complex * restrict, const float complex * restrict, size_t, const struct planned_forward_fft *) {
     /* recursively plan a forward c2c fft for the given length, allocating and calculating all the
      necessary twiddle factors and branch conditions which will be encountered during execution of
      the fft, such that executing the fft only requires addition, multiplication, and following
@@ -307,13 +313,15 @@ static void (* plan_recursive(struct planned_forward_fft ** plan_p, const size_t
     /* once reduced to powers of 2, try to get to repeatedly dividing by 4 and ending up at 8 */
     else S = T & (size_t)0xAAAAAAAAAAAAAAAA ? 4 : 2; /* S = 2 if T is a power of 4, else 4 */
 
+    const size_t sizeof_plan = sizeof(struct planned_forward_fft) + sizeof(float complex) * (T / S) * (S - 1);
+
     /* recursively plan the next fft size, if we can, before allocating the current one */
     struct planned_forward_fft * next = NULL;
-    void (* nextfunc)(float complex * restrict, const float complex * restrict, size_t, const struct planned_forward_fft *) = plan_recursive(&next, T / S);
+    void (* nextfunc)(float complex * restrict, const float complex * restrict, size_t, const struct planned_forward_fft *) = plan_recursive(&next, T / S, (unsigned char *)memory + sizeof_plan);
     if (!nextfunc) return NULL;
 
     /* only allocate once we are sure that we can plan the requested size */
-    *plan_p = malloc(sizeof(struct planned_forward_fft) + sizeof(float complex) * (T / S) * (S - 1));
+    *plan_p = memory;
     **plan_p = (struct planned_forward_fft) { .T = T, .nextfunc = nextfunc, .next = next };
 
     for (size_t it = 0; it < T / S; it++)
@@ -323,42 +331,24 @@ static void (* plan_recursive(struct planned_forward_fft ** plan_p, const size_t
     return S == 7 ? fft_recursive_by_7 : S == 5 ? fft_recursive_by_5 : S == 4 ? fft_recursive_by_4 : S == 3 ? fft_recursive_by_3 : fft_recursive_by_2;
 }
 
-struct planned_forward_fft * plan_forward_fft_of_length(const size_t T) {
+struct planned_forward_fft * plan_forward_fft_of_length(const size_t T, void * memory) {
+    if (!memory) return NULL;
     struct planned_forward_fft * first = NULL;
-    void (* nextfunc)(float complex * restrict, const float complex * restrict, size_t, const struct planned_forward_fft *) = plan_recursive(&first, T);
+    void (* nextfunc)(float complex * restrict, const float complex * restrict, size_t, const struct planned_forward_fft *) = plan_recursive(&first, T, (unsigned char *)memory + sizeof(struct planned_forward_fft));
     if (!nextfunc) return NULL;
 
     /* only allocate once we are sure that we can plan the requested size */
-    struct planned_forward_fft * plan = malloc(sizeof(*plan));
+    struct planned_forward_fft * plan = memory;
     *plan = (struct planned_forward_fft) { .T = T, .nextfunc = nextfunc, .next = first };
     return plan;
-}
-
-void destroy_planned_forward_fft(struct planned_forward_fft * plan) {
-    if (!plan) return;
-    struct planned_forward_fft * next = plan->next;
-    free(plan);
-    destroy_planned_forward_fft(next);
-}
-
-void destroy_planned_inverse_fft(struct planned_inverse_fft * plan) {
-    destroy_planned_forward_fft((void *)plan);
-}
-
-void destroy_planned_real_fft(struct planned_real_fft * plan) {
-    destroy_planned_forward_fft((void *)plan);
-}
-
-void destroy_planned_real_inverse_fft(struct planned_real_inverse_fft * plan) {
-    destroy_planned_forward_fft((void *)plan);
 }
 
 void fft_evaluate_forward(float complex * restrict const out, const float complex * restrict const in, const struct planned_forward_fft * const plan) {
     plan->nextfunc(out, in, 1, plan->next);
 }
 
-struct planned_inverse_fft * plan_inverse_fft_of_length(const size_t T) {
-    return (void *)plan_forward_fft_of_length(T);
+struct planned_inverse_fft * plan_inverse_fft_of_length(const size_t T, void * memory) {
+    return (void *)plan_forward_fft_of_length(T, memory);
 }
 
 void fft_evaluate_inverse(float complex * restrict const out, const float complex * restrict const in, const struct planned_inverse_fft * const iplan) {
@@ -376,15 +366,17 @@ void fft_evaluate_inverse(float complex * restrict const out, const float comple
     }
 }
 
-struct planned_real_fft * plan_real_fft_of_length(const size_t T) {
-    if ((T / 4U) * 4U != T) return NULL;
+struct planned_real_fft * plan_real_fft_of_length(const size_t T, void * memory) {
+    if ((T / 4U) * 4U != T || !memory) return NULL;
+
+    const size_t sizeof_plan = sizeof(struct planned_forward_fft) + sizeof(float complex) * T / 4;
 
     /* recursively plan the next fft size, if we can, before allocating the current one */
     struct planned_forward_fft * next = NULL;
-    void (* nextfunc)(float complex * restrict, const float complex * restrict, size_t, const struct planned_forward_fft *) = plan_recursive(&next, T / 2);
+    void (* nextfunc)(float complex * restrict, const float complex * restrict, size_t, const struct planned_forward_fft *) = plan_recursive(&next, T / 2, (unsigned char *)memory + sizeof_plan);
     if (!nextfunc) return NULL;
 
-    struct planned_forward_fft * plan = malloc(sizeof(*plan) + sizeof(float complex) * T / 4);
+    struct planned_forward_fft * plan = memory;
     *plan = (struct planned_forward_fft) { .nextfunc = nextfunc, .next = next, .T = T / 2 };
 
     for (size_t iw = 0; iw < T / 4; iw++)
@@ -393,8 +385,8 @@ struct planned_real_fft * plan_real_fft_of_length(const size_t T) {
     return (void *)plan;
 }
 
-struct planned_real_inverse_fft * plan_real_inverse_fft_of_length(const size_t T) {
-    return (void *)plan_real_fft_of_length(T);
+struct planned_real_inverse_fft * plan_real_inverse_fft_of_length(const size_t T, void * memory) {
+    return (void *)plan_real_fft_of_length(T, memory);
 }
 
 void fft_evaluate_real(float complex * restrict const out, const float * restrict const in, const struct planned_real_fft * const rplan) {
