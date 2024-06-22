@@ -184,16 +184,16 @@ static void fft_recursive_by_2(float complex * restrict const out, const float c
     const size_t T = plan->T;
 
     /* perform two ffts of length T / 2 */
-    plan->nextfunc(out + 0 * T / 2, in + 0 * istride, 2 * istride, plan->next);
-    plan->nextfunc(out + 1 * T / 2, in + 1 * istride, 2 * istride, plan->next);
+    plan->nextfunc(out + 0 * (T / 2), in + 0 * istride, 2 * istride, plan->next);
+    plan->nextfunc(out + 1 * (T / 2), in + 1 * istride, 2 * istride, plan->next);
 
     /* perform T / 2 dfts of length two, applying twiddle factors to all but the first */
     for (size_t it = 0; it < T / 2; it++) {
-        const float complex tmp0 = out[it + 0 * T / 2];
-        const float complex tmp1 = out[it + 1 * T / 2] * plan->twiddles[it];
+        const float complex tmp0 = out[it + 0 * (T / 2)];
+        const float complex tmp1 = out[it + 1 * (T / 2)] * plan->twiddles[it];
 
-        out[it + 0 * T / 2] = tmp0 + tmp1;
-        out[it + 1 * T / 2] = tmp0 - tmp1;
+        out[it + 0 * (T / 2)] = tmp0 + tmp1;
+        out[it + 1 * (T / 2)] = tmp0 - tmp1;
     }
 }
 
@@ -201,80 +201,80 @@ static void fft_recursive_by_3(float complex * restrict const out, const float c
     const size_t T = plan->T;
 
     /* perform three ffts of length T / 3 */
-    plan->nextfunc(out + 0 * T / 3, in + 0 * istride, 3 * istride, plan->next);
-    plan->nextfunc(out + 1 * T / 3, in + 1 * istride, 3 * istride, plan->next);
-    plan->nextfunc(out + 2 * T / 3, in + 2 * istride, 3 * istride, plan->next);
+    plan->nextfunc(out + 0 * (T / 3), in + 0 * istride, 3 * istride, plan->next);
+    plan->nextfunc(out + 1 * (T / 3), in + 1 * istride, 3 * istride, plan->next);
+    plan->nextfunc(out + 2 * (T / 3), in + 2 * istride, 3 * istride, plan->next);
 
     /* perform T / 3 dfts of length three, applying twiddle factors to all but the first */
     for (size_t it = 0; it < T / 3; it++)
         dft3(out + it, T / 3,
-             out[it + 0 * T / 3],
-             out[it + 1 * T / 3] * plan->twiddles[2 * it + 0],
-             out[it + 2 * T / 3] * plan->twiddles[2 * it + 1]);
+             out[it + 0 * (T / 3)],
+             out[it + 1 * (T / 3)] * plan->twiddles[2 * it + 0],
+             out[it + 2 * (T / 3)] * plan->twiddles[2 * it + 1]);
 }
 
 static void fft_recursive_by_4(float complex * restrict const out, const float complex * restrict const in, const size_t istride, const struct planned_forward_fft * const plan) {
     const size_t T = plan->T;
 
     /* perform four ffts of length T / 4 */
-    plan->nextfunc(out + 0 * T / 4, in + 0 * istride, 4 * istride, plan->next);
-    plan->nextfunc(out + 1 * T / 4, in + 1 * istride, 4 * istride, plan->next);
-    plan->nextfunc(out + 2 * T / 4, in + 2 * istride, 4 * istride, plan->next);
-    plan->nextfunc(out + 3 * T / 4, in + 3 * istride, 4 * istride, plan->next);
+    plan->nextfunc(out + 0 * (T / 4), in + 0 * istride, 4 * istride, plan->next);
+    plan->nextfunc(out + 1 * (T / 4), in + 1 * istride, 4 * istride, plan->next);
+    plan->nextfunc(out + 2 * (T / 4), in + 2 * istride, 4 * istride, plan->next);
+    plan->nextfunc(out + 3 * (T / 4), in + 3 * istride, 4 * istride, plan->next);
 
     /* perform T / 4 ffts of length four, applying twiddle factors to all but the first */
-    fft4(out + 0, T / 4, out[0], out[T / 4], out[T / 2], out[3 * T / 4]);
+    fft4(out + 0, T / 4, out[0], out[T / 4], out[2 * (T / 4)], out[3 * (T / 4)]);
 
     for (size_t it = 1; it < T / 4; it++)
         fft4(out + it, T / 4,
-             out[it + 0 * T / 4],
-             out[it + 1 * T / 4] * plan->twiddles[3 * it + 0],
-             out[it + 2 * T / 4] * plan->twiddles[3 * it + 1],
-             out[it + 3 * T / 4] * plan->twiddles[3 * it + 2]);
+             out[it + 0 * (T / 4)],
+             out[it + 1 * (T / 4)] * plan->twiddles[3 * it + 0],
+             out[it + 2 * (T / 4)] * plan->twiddles[3 * it + 1],
+             out[it + 3 * (T / 4)] * plan->twiddles[3 * it + 2]);
 }
 
 static void fft_recursive_by_5(float complex * restrict const out, const float complex * restrict const in, const size_t istride, const struct planned_forward_fft * const plan) {
     const size_t T = plan->T;
 
     /* perform five ffts of length T / 5 */
-    plan->nextfunc(out + 0 * T / 5, in + 0 * istride, 5 * istride, plan->next);
-    plan->nextfunc(out + 1 * T / 5, in + 1 * istride, 5 * istride, plan->next);
-    plan->nextfunc(out + 2 * T / 5, in + 2 * istride, 5 * istride, plan->next);
-    plan->nextfunc(out + 3 * T / 5, in + 3 * istride, 5 * istride, plan->next);
-    plan->nextfunc(out + 4 * T / 5, in + 4 * istride, 5 * istride, plan->next);
+    plan->nextfunc(out + 0 * (T / 5), in + 0 * istride, 5 * istride, plan->next);
+    plan->nextfunc(out + 1 * (T / 5), in + 1 * istride, 5 * istride, plan->next);
+    plan->nextfunc(out + 2 * (T / 5), in + 2 * istride, 5 * istride, plan->next);
+    plan->nextfunc(out + 3 * (T / 5), in + 3 * istride, 5 * istride, plan->next);
+    plan->nextfunc(out + 4 * (T / 5), in + 4 * istride, 5 * istride, plan->next);
 
     /* perform T / 5 dfts of length five, applying twiddle factors to all but the first */
     for (size_t it = 0; it < T / 5; it++)
         dft5(out + it, T / 5,
-             out[it + 0 * T / 5],
-             out[it + 1 * T / 5] * plan->twiddles[4 * it + 0],
-             out[it + 2 * T / 5] * plan->twiddles[4 * it + 1],
-             out[it + 3 * T / 5] * plan->twiddles[4 * it + 2],
-             out[it + 4 * T / 5] * plan->twiddles[4 * it + 3]);
+             out[it + 0 * (T / 5)],
+             out[it + 1 * (T / 5)] * plan->twiddles[4 * it + 0],
+             out[it + 2 * (T / 5)] * plan->twiddles[4 * it + 1],
+             out[it + 3 * (T / 5)] * plan->twiddles[4 * it + 2],
+             out[it + 4 * (T / 5)] * plan->twiddles[4 * it + 3]);
 }
 
 static void fft_recursive_by_7(float complex * restrict const out, const float complex * restrict const in, const size_t istride, const struct planned_forward_fft * const plan) {
     const size_t T = plan->T;
 
     /* perform seven ffts of length T / 7 */
-    plan->nextfunc(out + 0 * T / 7, in + 0 * istride, 7 * istride, plan->next);
-    plan->nextfunc(out + 1 * T / 7, in + 1 * istride, 7 * istride, plan->next);
-    plan->nextfunc(out + 2 * T / 7, in + 2 * istride, 7 * istride, plan->next);
-    plan->nextfunc(out + 3 * T / 7, in + 3 * istride, 7 * istride, plan->next);
-    plan->nextfunc(out + 4 * T / 7, in + 4 * istride, 7 * istride, plan->next);
-    plan->nextfunc(out + 5 * T / 7, in + 5 * istride, 7 * istride, plan->next);
-    plan->nextfunc(out + 6 * T / 7, in + 6 * istride, 7 * istride, plan->next);
+    plan->nextfunc(out + 0 * (T / 7), in + 0 * istride, 7 * istride, plan->next);
+    plan->nextfunc(out + 1 * (T / 7), in + 1 * istride, 7 * istride, plan->next);
+    plan->nextfunc(out + 2 * (T / 7), in + 2 * istride, 7 * istride, plan->next);
+    plan->nextfunc(out + 3 * (T / 7), in + 3 * istride, 7 * istride, plan->next);
+    plan->nextfunc(out + 4 * (T / 7), in + 4 * istride, 7 * istride, plan->next);
+    plan->nextfunc(out + 5 * (T / 7), in + 5 * istride, 7 * istride, plan->next);
+    plan->nextfunc(out + 6 * (T / 7), in + 6 * istride, 7 * istride, plan->next);
 
     /* perform T / 7 dfts of length seven, applying twiddle factors to all but the first */
     for (size_t it = 0; it < T / 7; it++)
         dft7(out + it, T / 7,
-             out[it + 0 * T / 7],
-             out[it + 1 * T / 7] * plan->twiddles[6 * it + 0],
-             out[it + 2 * T / 7] * plan->twiddles[6 * it + 1],
-             out[it + 3 * T / 7] * plan->twiddles[6 * it + 2],
-             out[it + 4 * T / 7] * plan->twiddles[6 * it + 3],
-             out[it + 5 * T / 7] * plan->twiddles[6 * it + 4],
-             out[it + 6 * T / 7] * plan->twiddles[6 * it + 5]);
+             out[it + 0 * (T / 7)],
+             out[it + 1 * (T / 7)] * plan->twiddles[6 * it + 0],
+             out[it + 2 * (T / 7)] * plan->twiddles[6 * it + 1],
+             out[it + 3 * (T / 7)] * plan->twiddles[6 * it + 2],
+             out[it + 4 * (T / 7)] * plan->twiddles[6 * it + 3],
+             out[it + 5 * (T / 7)] * plan->twiddles[6 * it + 4],
+             out[it + 6 * (T / 7)] * plan->twiddles[6 * it + 5]);
 }
 
 static float complex cosisinf(const float x) {
@@ -384,7 +384,7 @@ struct planned_real_fft * plan_real_fft_of_length(const size_t T) {
     void (* nextfunc)(float complex * restrict, const float complex * restrict, size_t, const struct planned_forward_fft *) = plan_recursive(&next, T / 2);
     if (!nextfunc) return NULL;
 
-    struct planned_forward_fft * plan = malloc(sizeof(*plan) + sizeof(float complex) * T / 4);
+    struct planned_forward_fft * plan = malloc(sizeof(*plan) + sizeof(float complex) * (T / 4));
     *plan = (struct planned_forward_fft) { .nextfunc = nextfunc, .next = next, .T = T / 2 };
 
     for (size_t iw = 0; iw < T / 4; iw++)
