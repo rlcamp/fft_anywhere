@@ -335,8 +335,10 @@ struct planned_forward_fft * plan_forward_fft_of_length(const size_t T) {
 }
 
 void destroy_planned_forward_fft(struct planned_forward_fft * plan) {
-    if (plan && plan->next) destroy_planned_forward_fft(plan->next);
+    if (!plan) return;
+    struct planned_forward_fft * next = plan->next;
     free(plan);
+    destroy_planned_forward_fft(next);
 }
 
 void destroy_planned_inverse_fft(struct planned_inverse_fft * plan) {
