@@ -1,5 +1,5 @@
 /*
- Copyright 2015-2024 Richard Campbell
+ Copyright 2015-2025 Richard Campbell
 
  Permission to use, copy, modify, and/or distribute this software for any purpose with or without
  fee is hereby granted, provided that the above copyright notice and this permission notice appear
@@ -28,6 +28,10 @@
  The twiddle factors are precomputed for a given FFT length and may be reused indefinitely and
  across threads. The transform is out-of-place, with the destination buffer used as scratch space.
  The inverse complex-to-real transform distorts its input, but the other three transforms do not.
+
+ Heap allocation (using malloc) is performed only during fft planning, and is always freed
+ in reverse order relative to allocation, allowing for simplified malloc implementations in
+ an embedded firmware where malloc would otherwise not be needed.
 
  This code (and all high-performance C code using complex arithmetic) expects to be compiled with at
  least one of -ffinite-math-only, -fcx-limited-range, or -fcx-fortran-rules, in order to avoid a
