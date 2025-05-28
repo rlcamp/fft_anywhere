@@ -12,7 +12,7 @@ ifeq (0,$(shell ${CC} -fcx-limited-range -x c -o /dev/null -c - < /dev/null 2>/d
 endif
 
 CPPFLAGS += -Wall -Wextra -Wshadow -Wmissing-prototypes
-LDFLAGS += ${CFLAGS}
+LDFLAGS += ${CFLAGS} -Wno-unused-command-line-argument
 LDLIBS ?= -lm
 
 # list of targets to build, generated from .c files containing a main() function:
