@@ -1,5 +1,5 @@
 /*
- Copyright 2015-2025 Richard Campbell
+ Copyright 2015-2026 Richard Campbell
 
  Permission to use, copy, modify, and/or distribute this software for any purpose with or without
  fee is hereby granted, provided that the above copyright notice and this permission notice appear
@@ -33,15 +33,11 @@
  in reverse order relative to allocation, allowing for simplified malloc implementations in
  an embedded firmware where malloc would otherwise not be needed.
 
- This code (and all high-performance C code using complex arithmetic) expects to be compiled with at
+ This code (and all high-performance C code using complex arithmetic) must be compiled with at
  least one of -ffinite-math-only, -fcx-limited-range, or -fcx-fortran-rules, in order to avoid a
- very significant slowdown due to the default semantics of complex multiplication. More modest
- speedups are obtained via (in descending order of benefit over risk ratio): "-fno-signed-zeros
- -fno-rounding-math -fexcess-precision=fast -fno-trapping-math -fno-math-errno -fassociative-math".
- In other words, this code is expected to perform fastest under -ffast-math semantics, but is almost
- as fast under "-ffast-math -fno-associative-math -fno-reciprocal-math", which should be palatable
- to a wider audience.
- */
+ significant slowdown due to the default semantics of complex multiplication on infs and nans,
+ which should not occur anyway when inputs have been properly sanitized. On some platforms and
+ compilers, it may (counterintuitively) be beneficial to force -ffp-contract=off. */
 
 /* needed for M_PI */
 #define _XOPEN_SOURCE
