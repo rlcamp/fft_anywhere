@@ -27,7 +27,7 @@ static float frand_minus_frand(void) {
     const union { uint32_t u; float f; } x = { .u = 0x3F800000U | ((bits >> 41) & 0x7FFFFFU) };
     const union { uint32_t u; float f; } y = { .u = 0x3F800000U | ((bits >> 18) & 0x7FFFFFU) };
 
-    /* and subtract them, yielding a triangular distribution on [-1.0f, +1.0f] */
+    /* and subtract them, yielding a triangular distribution on (-1.0f, +1.0f) */
     return x.f - y.f;
 }
 
